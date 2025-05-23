@@ -4,12 +4,23 @@ import type { Firestore, DocumentData, QueryConstraint } from "firebase/firestor
 import type { FirebaseStorage } from "firebase/storage"
 
 // Firebase Context Types
+export type UserRole = "admin" | "user" | "validator" | null
+
+export interface AppUser {
+  uid: string
+  email: string | null
+  displayName: string | null
+  photoURL: string | null
+  // You can add other relevant properties from FirebaseUser if needed
+  role: UserRole
+}
+
 export interface FirebaseContextType {
   app: FirebaseApp | null
   auth: Auth | null
   db: Firestore | null
   storage: FirebaseStorage | null
-  user: FirebaseUser | null
+  user: AppUser | null // Changed from FirebaseUser
   loading: boolean
   error: Error | null
 }
@@ -21,11 +32,12 @@ export interface AuthError {
 }
 
 export interface AuthHookReturn {
-  user: FirebaseUser | null
+  user: AppUser | null // Changed from FirebaseUser
   signUp: (email: string, password: string, displayName: string, role?: string) => Promise<UserCredential | null>
-  signIn: (email: string, password: string) => Promise<UserCredential | null>
+  signIn: (email: string, password: string) => Promise<UserCredential | null> // This will need to fetch role and return AppUser eventually
   signOut: () => Promise<void>
-  getUserRole: () => Promise<string | null>
+  // getUserRole might be deprecated or its logic incorporated into user state management
+  getUserRole: () => Promise<string | null> 
   error: AuthError | null
   loading: boolean
 }

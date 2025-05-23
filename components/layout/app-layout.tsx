@@ -7,16 +7,21 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useMobile } from "@/hooks/use-mobile"
+import { useFirebase } from "@/lib/firebase/hooks/use-firebase" // Added useFirebase
+import AdminSidebar from "@/components/admin/admin-sidebar" // Added AdminSidebar
+import UserSidebar from "@/components/user/user-sidebar" // Added UserSidebar
+import ValidatorSidebar from "@/components/validator/validator-sidebar" // Added ValidatorSidebar
 
 interface AppLayoutProps {
-  sidebar: ReactNode
+  // sidebar: ReactNode, // Removed sidebar prop
   children: ReactNode
   title?: string
 }
 
-export function AppLayout({ sidebar, children, title }: AppLayoutProps) {
+export function AppLayout({ children, title }: AppLayoutProps) { // Removed sidebar from props
   const pathname = usePathname()
   const isMobile = useMobile()
+  const { user: appUser } = useFirebase() // Get appUser from Firebase context
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
 
@@ -38,9 +43,28 @@ export function AppLayout({ sidebar, children, title }: AppLayoutProps) {
   return (
     <div className="relative min-h-screen bg-background">
       {/* Desktop Sidebar */}
-      {!isMobile && (
+      {/* Determine which sidebar to render */}
+      let RoleSpecificSidebar: ReactNode | null = null
+      if (appUser) {
+        switch (appUser.role) {
+          case "admin":
+            RoleSpecificSidebar = <AdminSidebar />
+            break
+          case "user":
+            RoleSpecificSidebar = <UserSidebar />
+            break
+          case "validator":
+            RoleSpecificSidebar = <ValidatorSidebar />
+            break
+          default:
+            RoleSpecificSidebar = null // Or a default/error sidebar if necessary
+            break
+        }
+      }
+
+      {!isMobile && RoleSpecificSidebar && ( // Render only if a sidebar is determined and not mobile
         <>
-          {sidebar}
+          {RoleSpecificSidebar}
           <div
             className="absolute inset-y-0 transition-all duration-300"
             style={{ left: collapsed ? "70px" : "240px" }}
@@ -57,10 +81,10 @@ export function AppLayout({ sidebar, children, title }: AppLayoutProps) {
       )}
 
       {/* Mobile Sidebar */}
-      {isMobile && (
+      {isMobile && RoleSpecificSidebar && ( // Render only if a sidebar is determined and is mobile
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetContent side="left" className="p-0">
-            {sidebar}
+            {RoleSpecificSidebar}
           </SheetContent>
         </Sheet>
       )}

@@ -14,6 +14,7 @@ import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore"
 import { getStorage } from "firebase/storage"
 import { FirebaseContext } from "./firebase-context"
 import { firebaseConfig } from "../config/firebase-config"
+import type { AppUser, UserRole } from "../types" // Import AppUser and UserRole
 
 interface FirebaseProviderProps {
   children: ReactNode
@@ -21,8 +22,9 @@ interface FirebaseProviderProps {
 
 export function FirebaseProvider({ children }: FirebaseProviderProps) {
   const [app, setApp] = useState<FirebaseApp | null>(null)
-  const [user, setUser] = useState<User | null>(null)
-  const [userRole, setUserRole] = useState<string | null>(null)
+  // const [user, setUser] = useState<User | null>(null) // Replaced by appUser
+  // const [userRole, setUserRole] = useState<string | null>(null) // Replaced by appUser.role
+  const [appUser, setAppUser] = useState<AppUser | null>(null) // New state for AppUser
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
@@ -44,30 +46,42 @@ export function FirebaseProvider({ children }: FirebaseProviderProps) {
         const db = getFirestore(firebaseApp)
 
         // Listen for auth state changes
-        const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseAuthUser) => {
           setLoading(true)
-
-          if (authUser) {
-            setUser(authUser)
-
+          if (firebaseAuthUser) {
             try {
-              // Get user role from Firestore
-              const userDoc = await getDoc(doc(db, "users", authUser.uid))
+              const userDoc = await getDoc(doc(db, "users", firebaseAuthUser.uid))
+              let role: UserRole = "user" // Default role
               if (userDoc.exists()) {
-                setUserRole(userDoc.data().role || "user")
+                role = (userDoc.data()?.role as UserRole) || "user"
               } else {
-                // Default role if no document exists
-                setUserRole("user")
+                // This case might happen if a user is authenticated in Firebase Auth
+                // but their Firestore document is missing. Assign a default role
+                // or handle as an error/incomplete profile.
+                console.warn(`User document not found for UID: ${firebaseAuthUser.uid}. Defaulting to 'user' role.`);
               }
+              setAppUser({
+                uid: firebaseAuthUser.uid,
+                email: firebaseAuthUser.email,
+                displayName: firebaseAuthUser.displayName,
+                photoURL: firebaseAuthUser.photoURL,
+                // Add any other properties from firebaseAuthUser you need in AppUser
+                role: role,
+              })
             } catch (err) {
-              console.error("Error getting user role:", err)
-              setUserRole("user") // Default to user role on error
+              console.error("Error processing auth state change:", err)
+              // Keep Firebase user but set role to null or a default on error
+              setAppUser({
+                uid: firebaseAuthUser.uid,
+                email: firebaseAuthUser.email,
+                displayName: firebaseAuthUser.displayName,
+                photoURL: firebaseAuthUser.photoURL,
+                role: null, // Or 'user' if preferred on error
+              })
             }
           } else {
-            setUser(null)
-            setUserRole(null)
+            setAppUser(null)
           }
-
           setLoading(false)
         })
 
@@ -96,17 +110,11 @@ export function FirebaseProvider({ children }: FirebaseProviderProps) {
       const auth = getAuth(app)
       const result = await signInWithEmailAndPassword(auth, email, password)
 
-      // Get user role
-      if (result.user) {
-        const db = getFirestore(app)
-        const userDoc = await getDoc(doc(db, "users", result.user.uid))
-        if (userDoc.exists()) {
-          setUserRole(userDoc.data().role || "user")
-        } else {
-          setUserRole("user")
-        }
-      }
-
+      // The onAuthStateChanged listener is now responsible for setting the AppUser state,
+      // including the role, after successful sign-in.
+      // So, direct role setting here is not strictly necessary and can be removed
+      // to avoid potential race conditions or redundant state updates.
+      // setUserRole(role) removed from here.
       return result
     } catch (err) {
       console.error("Sign in error:", err)
@@ -140,7 +148,7 @@ export function FirebaseProvider({ children }: FirebaseProviderProps) {
         createdAt: new Date().toISOString(),
       })
 
-      setUserRole(role)
+      // setUserRole(role) // Removed, onAuthStateChanged will handle setting AppUser with role
       return userCredential
     } catch (err) {
       console.error("Sign up error:", err)
@@ -157,7 +165,7 @@ export function FirebaseProvider({ children }: FirebaseProviderProps) {
     try {
       const auth = getAuth(app)
       await auth.signOut()
-      setUserRole(null)
+      // setAppUser(null) is handled by onAuthStateChanged
     } catch (err) {
       console.error("Sign out error:", err)
       throw err
@@ -197,8 +205,7 @@ export function FirebaseProvider({ children }: FirebaseProviderProps) {
 
   const value = {
     app,
-    user,
-    userRole,
+    user: appUser, // Changed from user and userRole to appUser
     loading,
     error,
     signIn,

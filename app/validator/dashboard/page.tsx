@@ -5,8 +5,63 @@ import { FileCheck, Clock, AlertTriangle, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import PendingReimbursementsTable from "@/components/pending-reimbursements-table"
 import { PageHeader } from "@/components/shared/page-header"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useFirebase } from "@/lib/firebase/hooks/use-firebase"
+import { LoadingSpinner } from "@/components/shared/loading-spinner"
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart" // Import Chart components
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts" // Import Recharts components
+
+const dailyProcessingData = [
+  { day: "Mon", count: 10, fill: "var(--color-count)" }, // fill key for ChartStyle
+  { day: "Tue", count: 15, fill: "var(--color-count)" },
+  { day: "Wed", count: 8, fill: "var(--color-count)" },
+  { day: "Thu", count: 12, fill: "var(--color-count)" },
+  { day: "Fri", count: 18, fill: "var(--color-count)" },
+  { day: "Sat", count: 5, fill: "var(--color-count)" },
+  { day: "Sun", count: 2, fill: "var(--color-count)" },
+];
+
+const dailyProcessingChartConfig = {
+  count: { // Key in data objects for the bar's value
+    label: "Processed",
+    color: "hsl(var(--primary))", // Color for legend and ChartStyle variable
+  },
+} satisfies ChartConfig;
+
 
 export default function ValidatorDashboard() {
+  const { user: appUser, loading: authLoading } = useFirebase()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!appUser) {
+        router.replace("/login")
+      } else if (appUser.role !== "validator") {
+        switch (appUser.role) {
+          case "admin":
+            router.replace("/admin/dashboard")
+            break
+          case "user":
+            router.replace("/user/dashboard")
+            break
+          default:
+            router.replace("/login")
+            break
+        }
+      }
+    }
+  }, [appUser, authLoading, router])
+
+  if (authLoading || !appUser || appUser.role !== "validator") {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -18,45 +73,36 @@ export default function ValidatorDashboard() {
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Key Metrics Section */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Menunggu Review</CardTitle>
+            <CardTitle className="text-sm font-medium">Pending For Review</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">32</div>
-            <p className="text-xs text-muted-foreground">+8 sejak kemarin</p>
+            <div className="text-2xl font-bold">32</div> {/* Placeholder value */}
+            <p className="text-xs text-muted-foreground">Reimbursements awaiting your review</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Perlu Klarifikasi</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">5</div>
-            <p className="text-xs text-muted-foreground">-2 dari kemarin</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Disetujui Hari Ini</CardTitle>
+            <CardTitle className="text-sm font-medium">Approved by You</CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">+3 dari kemarin</p>
+            <div className="text-2xl font-bold">120</div> {/* Placeholder value */}
+            <p className="text-xs text-muted-foreground">Total reimbursements you've approved</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Divalidasi Bulan Ini</CardTitle>
-            <FileCheck className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Rejected by You</CardTitle>
+            <XCircle className="h-4 w-4 text-muted-foreground" /> {/* Added XCircle icon */}
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">128</div>
-            <p className="text-xs text-muted-foreground">+22% dari bulan lalu</p>
+            <div className="text-2xl font-bold">15</div> {/* Placeholder value */}
+            <p className="text-xs text-muted-foreground">Total reimbursements you've rejected</p>
           </CardContent>
         </Card>
       </div>
@@ -109,6 +155,39 @@ export default function ValidatorDashboard() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Daily Processing Chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Reimbursements Processed (Last 7 Days)</CardTitle>
+          <CardDescription>Your daily processing activity.</CardDescription>
+        </CardHeader>
+        <CardContent className="h-[300px] pr-4">
+          <ChartContainer config={dailyProcessingChartConfig} className="min-h-[200px] w-full">
+            <BarChart data={dailyProcessingData} margin={{ top: 5, right: 0, left: -10, bottom: 5 }}> {/* Adjusted left margin for YAxis */}
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="day"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+              />
+              <YAxis
+                tickFormatter={(value) => value.toLocaleString()}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={10}
+                width={30} 
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent formatter={(value) => `${value} processed`} />}
+              />
+              <Bar dataKey="count" radius={4} />
+            </BarChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
     </div>
   )
 }
