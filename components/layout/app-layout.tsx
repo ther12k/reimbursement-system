@@ -40,28 +40,28 @@ export function AppLayout({ children, title }: AppLayoutProps) { // Removed side
     document.cookie = `sidebar:collapsed=${newState}; path=/; max-age=${60 * 60 * 24 * 365}`
   }
 
+  // Determine which sidebar to render
+  let RoleSpecificSidebar: ReactNode | null = null
+  if (appUser) {
+    switch (appUser.role) {
+      case "admin":
+        RoleSpecificSidebar = <AdminSidebar />
+        break
+      case "user":
+        RoleSpecificSidebar = <UserSidebar />
+        break
+      case "validator":
+        RoleSpecificSidebar = <ValidatorSidebar />
+        break
+      default:
+        RoleSpecificSidebar = null // Or a default/error sidebar if necessary
+        break
+    }
+  }
+
   return (
     <div className="relative min-h-screen bg-background">
       {/* Desktop Sidebar */}
-      {/* Determine which sidebar to render */}
-      let RoleSpecificSidebar: ReactNode | null = null
-      if (appUser) {
-        switch (appUser.role) {
-          case "admin":
-            RoleSpecificSidebar = <AdminSidebar />
-            break
-          case "user":
-            RoleSpecificSidebar = <UserSidebar />
-            break
-          case "validator":
-            RoleSpecificSidebar = <ValidatorSidebar />
-            break
-          default:
-            RoleSpecificSidebar = null // Or a default/error sidebar if necessary
-            break
-        }
-      }
-
       {!isMobile && RoleSpecificSidebar && ( // Render only if a sidebar is determined and not mobile
         <>
           {RoleSpecificSidebar}
