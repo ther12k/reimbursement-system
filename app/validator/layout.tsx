@@ -1,14 +1,35 @@
+"use client"
+
 import type { ReactNode } from "react"
+import { useState } from "react"
 import { ValidatorSidebar } from "@/components/validator/validator-sidebar"
-import { AppShell } from "@/components/shared/app-shell"
+import { AppLayout } from "@/components/layout/app-layout"
+import { usePathname } from "next/navigation"
 
 export default function ValidatorLayout({ children }: { children: ReactNode }) {
+  const [collapsed, setCollapsed] = useState(false)
+  const pathname = usePathname()
+
+  // Get page title based on pathname
+  const getPageTitle = () => {
+    const segments = pathname.split("/").filter(Boolean)
+    const lastSegment = segments[segments.length - 1]
+
+    if (!lastSegment) return "Validator Dashboard"
+
+    // Capitalize and replace dashes with spaces
+    return lastSegment
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
+  }
+
   return (
-    <AppShell>
-      <ValidatorSidebar />
-      <div className="flex-1 md:pl-[var(--sidebar-width)] md:group-data-[collapsible=icon]/sidebar-wrapper:pl-[var(--sidebar-width-icon)] pt-14 transition-all duration-300">
-        <div className="p-6">{children}</div>
-      </div>
-    </AppShell>
+    <AppLayout
+      sidebar={<ValidatorSidebar collapsed={collapsed} onToggleCollapse={() => setCollapsed(!collapsed)} />}
+      title={getPageTitle()}
+    >
+      {children}
+    </AppLayout>
   )
 }

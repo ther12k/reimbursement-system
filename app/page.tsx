@@ -1,139 +1,137 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { CreateTestUsers } from "@/components/admin/create-test-users"
 import { ThemeToggle } from "@/components/theme-toggle"
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 dark:from-background dark:to-muted/10">
-      <header className="container mx-auto py-6">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+
+      <div className="container mx-auto px-4 py-16">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="h-16 w-16 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-2xl">
               R
             </div>
-            <h1 className="text-2xl font-bold">ReimburseEase</h1>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">ReimburseEase</h1>
           </div>
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-            <div className="space-x-2">
-              <Button variant="outline" asChild>
-                <Link href="/login">Login</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/register">Register</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto py-12">
-        <div className="max-w-4xl mx-auto text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">Simplify Your Reimbursement Process</h2>
-          <p className="text-xl text-muted-foreground mb-8">
-            Streamlined expense management for organizations of all sizes
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Streamline your reimbursement process with our comprehensive management system
           </p>
-          <Button size="lg" asChild>
-            <Link href="/register">Get Started</Link>
-          </Button>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          <Card className="transition-all hover:shadow-md">
+        {/* Setup Section */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <Card className="border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20">
             <CardHeader>
-              <CardTitle>For Admins</CardTitle>
-              <CardDescription>Complete control over the system</CardDescription>
+              <CardTitle className="text-yellow-800 dark:text-yellow-200">🚀 First Time Setup</CardTitle>
+              <CardDescription className="text-yellow-700 dark:text-yellow-300">
+                Before you can log in, you need to create test users in Firebase. Click the button below to create demo
+                accounts.
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                <li>Manage users and permissions</li>
-                <li>Create and share events</li>
-                <li>Generate QR codes for quick access</li>
-                <li>Comprehensive reporting tools</li>
-              </ul>
+              <div className="flex justify-center">
+                <CreateTestUsers />
+              </div>
             </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full" asChild>
-                <Link href="/login?role=admin">Admin Login</Link>
-              </Button>
-            </CardFooter>
-          </Card>
-
-          <Card className="transition-all hover:shadow-md">
-            <CardHeader>
-              <CardTitle>For Validators</CardTitle>
-              <CardDescription>Efficient validation workflow</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                <li>Review submission details</li>
-                <li>Validate payment data</li>
-                <li>AI-assisted document verification</li>
-                <li>Approve or reject with comments</li>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full" asChild>
-                <Link href="/login?role=validator">Validator Login</Link>
-              </Button>
-            </CardFooter>
-          </Card>
-
-          <Card className="transition-all hover:shadow-md">
-            <CardHeader>
-              <CardTitle>For Users</CardTitle>
-              <CardDescription>Simple reimbursement submission</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                <li>Submit reimbursement requests</li>
-                <li>Scan documents or upload files</li>
-                <li>Access events via QR codes</li>
-                <li>Track reimbursement status</li>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full" asChild>
-                <Link href="/login?role=user">User Login</Link>
-              </Button>
-            </CardFooter>
           </Card>
         </div>
 
-        <div className="bg-card rounded-lg p-8 shadow-lg">
-          <h3 className="text-2xl font-bold mb-4 text-center">How It Works</h3>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold">1</span>
-              </div>
-              <h4 className="font-semibold mb-2">Submit Expenses</h4>
-              <p className="text-muted-foreground">Upload receipts and fill in expense details</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold">2</span>
-              </div>
-              <h4 className="font-semibold mb-2">Validation</h4>
-              <p className="text-muted-foreground">Validators review and approve submissions</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold">3</span>
-              </div>
-              <h4 className="font-semibold mb-2">Get Reimbursed</h4>
-              <p className="text-muted-foreground">Receive your approved reimbursements quickly</p>
-            </div>
+        {/* Features Grid */}
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded bg-blue-100 flex items-center justify-center">
+                  <span className="text-blue-600 font-bold">A</span>
+                </div>
+                Admin Dashboard
+              </CardTitle>
+              <CardDescription>
+                Comprehensive management tools for administrators to oversee the entire reimbursement process
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                <li>• User management</li>
+                <li>• Event creation</li>
+                <li>• Reports and analytics</li>
+                <li>• System configuration</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded bg-green-100 flex items-center justify-center">
+                  <span className="text-green-600 font-bold">V</span>
+                </div>
+                Validator Portal
+              </CardTitle>
+              <CardDescription>
+                Efficient tools for validators to review and approve reimbursement requests
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                <li>• Review submissions</li>
+                <li>• Document verification</li>
+                <li>• Approval workflow</li>
+                <li>• Communication tools</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded bg-purple-100 flex items-center justify-center">
+                  <span className="text-purple-600 font-bold">U</span>
+                </div>
+                User Interface
+              </CardTitle>
+              <CardDescription>
+                Simple and intuitive interface for users to submit reimbursement requests
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                <li>• Submit requests</li>
+                <li>• Upload documents</li>
+                <li>• Track status</li>
+                <li>• View history</li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Login Section */}
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Ready to Get Started?</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            After creating test users above, you can log in with different roles to explore the system
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link href="/login">
+              <Button size="lg" className="min-w-[120px]">
+                Login
+              </Button>
+            </Link>
+            <Link href="/register">
+              <Button variant="outline" size="lg" className="min-w-[120px]">
+                Register
+              </Button>
+            </Link>
           </div>
         </div>
-      </main>
-
-      <footer className="bg-muted/30 py-8">
-        <div className="container mx-auto text-center text-muted-foreground">
-          <p>© 2025 ReimburseEase. All rights reserved.</p>
-        </div>
-      </footer>
+      </div>
     </div>
   )
 }

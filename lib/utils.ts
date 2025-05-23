@@ -15,30 +15,50 @@ export function formatRupiah(amount: number): string {
   }).format(amount)
 }
 
-// Format date to Indonesian format
+// Format date to Indonesian format with error handling
 export function formatDate(date: Date | string): string {
-  if (!date) return ""
+  if (!date) return "-"
 
-  const dateObj = typeof date === "string" ? new Date(date) : date
+  try {
+    const dateObj = typeof date === "string" ? new Date(date) : date
 
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(dateObj)
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      return "-"
+    }
+
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(dateObj)
+  } catch (error) {
+    console.error("Error formatting date:", error)
+    return "-"
+  }
 }
 
 // Format short date to Indonesian format (DD/MM/YYYY)
 export function formatShortDate(date: Date | string): string {
-  if (!date) return ""
+  if (!date) return "-"
 
-  const dateObj = typeof date === "string" ? new Date(date) : date
+  try {
+    const dateObj = typeof date === "string" ? new Date(date) : date
 
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(dateObj)
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      return "-"
+    }
+
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }).format(dateObj)
+  } catch (error) {
+    console.error("Error formatting short date:", error)
+    return "-"
+  }
 }
 
 // Translate status to Bahasa Indonesia
