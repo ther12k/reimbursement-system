@@ -20,10 +20,10 @@
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
+    --border: 240 5.9% 93%; /* Lightened from 90% */
+    --input: 240 5.9% 93%; /* Lightened from 90% */
     --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --radius: 0.625rem; /* Increased from 0.5rem */
 
     /* Sidebar specific variables */
     --sidebar-background: 0 0% 98%;
