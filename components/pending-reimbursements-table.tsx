@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { formatRupiah, translateStatus } from "@/lib/utils"
+import { EmptyState } from "@/components/shared/empty-state" // Import EmptyState
+import { Inbox } from "lucide-react" // Import an icon
 
 // Mock data for pending reimbursements
 const pendingReimbursements = [
@@ -51,6 +53,16 @@ const pendingReimbursements = [
 ]
 
 export default function PendingReimbursementsTable() {
+  if (pendingReimbursements.length === 0) {
+    return (
+      <EmptyState
+        title="Tidak Ada Reimbursement"
+        description="Tidak ada reimbursement yang menunggu review saat ini."
+        icon={<Inbox className="h-12 w-12" />}
+      />
+    )
+  }
+
   return (
     <Table>
       <TableHeader>

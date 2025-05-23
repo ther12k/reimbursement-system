@@ -28,7 +28,8 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+        "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background [&[data-state=open]>svg]:rotate-180",
+        // Note: ring-offset-background is used here to match other components. If the trigger is directly on a non-background color, this might need adjustment or the offset could be removed if not needed.
         className
       )}
       {...props}

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { PlusCircle, Search, Edit, Trash2, Loader2 } from "lucide-react"
+import { PlusCircle, Search, Edit, Trash2, Loader2, RefreshCw } from "lucide-react" // Added RefreshCw
 import { useToast } from "@/hooks/use-toast"
 import { useFirestore } from "@/lib/firebase/firestore"
 import { UserForm } from "@/components/admin/user-form"
@@ -35,6 +35,7 @@ export default function UsersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [fetchError, setFetchError] = useState<string | null>(null) // Added fetchError state
 
   // Fetch users on component mount
   useEffect(() => {
@@ -61,15 +62,18 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     setIsLoading(true)
+    setFetchError(null) // Reset error state on new fetch
     try {
       const usersData = await getDocuments()
       setUsers(usersData as User[])
       setFilteredUsers(usersData as User[])
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching users:", error)
+      const errorMessage = error.message || "Terjadi kesalahan saat memuat data pengguna"
+      setFetchError(errorMessage)
       toast({
         title: "Gagal memuat pengguna",
-        description: "Terjadi kesalahan saat memuat data pengguna",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -146,6 +150,18 @@ export default function UsersPage() {
         <div className="flex h-96 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
+      ) : fetchError ? (
+        <EmptyState
+          variant="error"
+          title="Gagal Memuat Pengguna"
+          description={fetchError}
+          action={
+            <Button onClick={fetchUsers}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Coba Lagi
+            </Button>
+          }
+        />
       ) : filteredUsers.length === 0 ? (
         <EmptyState
           icon={<Search className="h-12 w-12" />}

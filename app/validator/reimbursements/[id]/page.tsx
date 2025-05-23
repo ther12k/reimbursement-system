@@ -18,13 +18,14 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
-import { CheckCircle, XCircle, AlertCircle, Download, Eye, MessageSquare } from "lucide-react"
+import { CheckCircle, XCircle, AlertCircle, Download, Eye, MessageSquare, ArrowLeft } from "lucide-react" // Added ArrowLeft
 import DocumentViewer from "@/components/document-viewer"
 import { ReceiptNoteDialog } from "@/components/validator/receipt-note-dialog"
 import { ClarificationDialog } from "@/components/validator/clarification-dialog"
 import { formatRupiah, translateStatus, translateExpenseType } from "@/lib/utils"
 import { PageHeader } from "@/components/shared/page-header"
 import { ExportReportDialog } from "@/components/export-report-dialog"
+import { EmptyState } from "@/components/shared/empty-state" // Import EmptyState
 
 // Mock data for a reimbursement request
 const mockReimbursement = {
@@ -86,8 +87,34 @@ export default function ReimbursementDetailPage({ params }: { params: { id: stri
   const [currentExpenseId, setCurrentExpenseId] = useState<number | null>(null)
   const [notes, setNotes] = useState("")
   const [rejectionReason, setRejectionReason] = useState("")
-  const [reimbursementData, setReimbursementData] = useState(mockReimbursement)
+  const [reimbursementData, setReimbursementData] = useState(mockReimbursement) // In a real app, this would be fetched.
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false)
+
+  // In a real app, you would fetch data in useEffect and setReimbursementData
+  // If fetch fails or returns no data for params.id, setReimbursementData(null)
+  // For this example, we'll just check if initial mock data exists (it always will here)
+  // To test, you could temporarily set reimbursementData to null, e.g. by:
+  // const [reimbursementData, setReimbursementData] = useState(null as typeof mockReimbursement | null)
+  // useEffect(() => { setReimbursementData(null); }, []); // Example to trigger not found
+
+  if (!reimbursementData) {
+    return (
+      <div className="flex h-[calc(100vh-200px)] items-center justify-center">
+        <EmptyState
+          variant="error" 
+          title="Reimbursement Tidak Ditemukan"
+          description={`Reimbursement dengan ID "${params.id}" tidak dapat ditemukan.`}
+          icon={<AlertCircle className="h-12 w-12" />} // Using AlertCircle as it was already imported
+          action={
+            <Button onClick={() => router.back()}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Kembali
+            </Button>
+          }
+        />
+      </div>
+    )
+  }
 
   const handleApprove = () => {
     toast({
@@ -198,75 +225,87 @@ export default function ReimbursementDetailPage({ params }: { params: { id: stri
               <TabsTrigger value="transportation">Transportasi</TabsTrigger>
               <TabsTrigger value="meals">Konsumsi</TabsTrigger>
             </TabsList>
-            <TabsContent value="all" className="space-y-4">
-              {reimbursementData.expenses.map((expense) => (
-                <Card key={expense.id} className={selectedExpense === expense.id ? "border-primary" : ""}>
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-center">
-                      <CardTitle className="text-lg">{translateExpenseType(expense.type)}</CardTitle>
-                      <Badge
-                        variant={
-                          expense.status === "approved"
-                            ? "success"
-                            : expense.status === "rejected"
-                              ? "destructive"
-                              : "outline"
-                        }
-                      >
-                        {translateStatus(expense.status)}
-                      </Badge>
-                    </div>
-                    <CardDescription>{expense.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pb-2">
-                    <div className="flex justify-between items-center">
-                      <p className="font-medium">{formatRupiah(expense.amount)}</p>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm" onClick={() => handleViewDocument(expense.receipt)}>
-                          <Eye className="h-4 w-4 mr-1" />
-                          Lihat Bukti
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleAddReceiptNote(expense.id)}>
-                          <MessageSquare className="h-4 w-4 mr-1" />
-                          Catatan
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Download className="h-4 w-4 mr-1" />
-                          Unduh
-                        </Button>
-                      </div>
-                    </div>
-                    {expense.note && (
-                      <div className="mt-3 p-3 bg-muted rounded-md">
-                        <p className="text-sm font-medium">Catatan Validator:</p>
-                        <p className="text-sm">{expense.note}</p>
-                      </div>
-                    )}
-                  </CardContent>
-                  <CardFooter>
-                    <Button
-                      variant="ghost"
-                      className="w-full"
-                      onClick={() => setSelectedExpense(expense.id === selectedExpense ? null : expense.id)}
-                    >
-                      {expense.id === selectedExpense ? "Sembunyikan Detail" : "Tampilkan Detail"}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </TabsContent>
-            <TabsContent value="accommodation">
-              {reimbursementData.expenses
-                .filter((expense) => expense.type === "accommodation")
-                .map((expense) => (
-                  /* Same card structure as above, filtered for accommodation */
+            {(() => {
+              const renderExpenseList = (expenses: typeof reimbursementData.expenses, type: string) => {
+                if (expenses.length === 0) {
+                  let title = "Tidak Ada Pengeluaran"
+                  if (type !== "all") title = `Tidak Ada Pengeluaran ${type.charAt(0).toUpperCase() + type.slice(1)}`
+                  return <EmptyState title={title} description={`Tidak ada item pengeluaran dengan tipe "${type}" untuk ditampilkan.`} className="py-8" />
+                }
+                return expenses.map((expense) => (
                   <Card key={expense.id} className={selectedExpense === expense.id ? "border-primary" : ""}>
-                    {/* Card content same as above */}
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-center">
+                        <CardTitle className="text-lg">{translateExpenseType(expense.type)}</CardTitle>
+                        <Badge
+                          variant={
+                            expense.status === "approved"
+                              ? "success"
+                              : expense.status === "rejected"
+                                ? "destructive"
+                                : "outline"
+                          }
+                        >
+                          {translateStatus(expense.status)}
+                        </Badge>
+                      </div>
+                      <CardDescription>{expense.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="pb-2">
+                      <div className="flex justify-between items-center">
+                        <p className="font-medium">{formatRupiah(expense.amount)}</p>
+                        <div className="flex space-x-2">
+                          <Button variant="outline" size="sm" onClick={() => handleViewDocument(expense.receipt)}>
+                            <Eye className="h-4 w-4 mr-1" />
+                            Lihat Bukti
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleAddReceiptNote(expense.id)}>
+                            <MessageSquare className="h-4 w-4 mr-1" />
+                            Catatan
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Download className="h-4 w-4 mr-1" />
+                            Unduh
+                          </Button>
+                        </div>
+                      </div>
+                      {expense.note && (
+                        <div className="mt-3 p-3 bg-muted rounded-md">
+                          <p className="text-sm font-medium">Catatan Validator:</p>
+                          <p className="text-sm">{expense.note}</p>
+                        </div>
+                      )}
+                    </CardContent>
+                    <CardFooter>
+                      <Button
+                        variant="ghost"
+                        className="w-full"
+                        onClick={() => setSelectedExpense(expense.id === selectedExpense ? null : expense.id)}
+                      >
+                        {expense.id === selectedExpense ? "Sembunyikan Detail" : "Tampilkan Detail"}
+                      </Button>
+                    </CardFooter>
                   </Card>
-                ))}
-            </TabsContent>
-            <TabsContent value="transportation">{/* Filter expenses by type */}</TabsContent>
-            <TabsContent value="meals">{/* Filter expenses by type */}</TabsContent>
+                ))
+              }
+
+              return (
+                <>
+                  <TabsContent value="all" className="space-y-4">
+                    {renderExpenseList(reimbursementData.expenses, "all")}
+                  </TabsContent>
+                  <TabsContent value="accommodation" className="space-y-4">
+                    {renderExpenseList(reimbursementData.expenses.filter(exp => exp.type === "accommodation"), "akomodasi")}
+                  </TabsContent>
+                  <TabsContent value="transportation" className="space-y-4">
+                    {renderExpenseList(reimbursementData.expenses.filter(exp => exp.type === "transportation"), "transportasi")}
+                  </TabsContent>
+                  <TabsContent value="meals" className="space-y-4">
+                    {renderExpenseList(reimbursementData.expenses.filter(exp => exp.type === "meals"), "konsumsi")}
+                  </TabsContent>
+                </>
+              )
+            })()}
           </Tabs>
         </CardContent>
       </Card>

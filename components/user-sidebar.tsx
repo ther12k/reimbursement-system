@@ -44,7 +44,7 @@ export default function UserSidebar() {
   ]
 
   return (
-    <div className="group/sidebar h-screen w-[80px] lg:w-[250px] border-r border-border bg-background flex flex-col z-30 fixed">
+    <nav aria-label="User navigation" className="group/sidebar h-screen w-[80px] lg:w-[250px] border-r border-border bg-background flex flex-col z-30 fixed">
       <div className="h-[60px] w-full border-b border-border flex items-center px-4">
         <Link href="/user/dashboard" className="flex items-center gap-2">
           <div className="relative h-8 w-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold">
@@ -65,7 +65,7 @@ export default function UserSidebar() {
               )}
               asChild
             >
-              <Link href={route.href}>
+              <Link href={route.href} aria-current={route.active ? "page" : undefined}>
                 <route.icon className="h-5 w-5" />
                 <span className="hidden lg:flex">{route.label}</span>
               </Link>
@@ -75,12 +75,12 @@ export default function UserSidebar() {
       </ScrollArea>
       <div className="h-[60px] w-full border-t border-border flex items-center p-2">
         <Button variant="ghost" className="flex h-10 w-full items-center justify-start gap-2 px-3" asChild>
-          <Link href="/login">
+          <Link href="/login"> {/* Logout link typically doesn't get aria-current */}
             <LogOut className="h-5 w-5" />
             <span className="hidden lg:flex">Logout</span>
           </Link>
         </Button>
       </div>
-    </div>
+    </nav>
   )
 }

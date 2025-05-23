@@ -214,44 +214,52 @@ export default function ReportsPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Pengguna</TableHead>
-                    <TableHead>Acara</TableHead>
-                    <TableHead>Jumlah</TableHead>
-                    <TableHead>Tanggal</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mockReimbursements.map((reimbursement) => (
-                    <TableRow key={reimbursement.id}>
-                      <TableCell className="font-medium">{reimbursement.id}</TableCell>
-                      <TableCell>{reimbursement.user}</TableCell>
-                      <TableCell>{reimbursement.event}</TableCell>
-                      <TableCell>{formatRupiah(reimbursement.amount)}</TableCell>
-                      <TableCell>{reimbursement.submittedDate}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            reimbursement.status === "approved"
-                              ? "success"
-                              : reimbursement.status === "rejected"
-                                ? "destructive"
-                                : reimbursement.status === "clarification"
-                                  ? "warning"
-                                  : "outline"
-                          }
-                        >
-                          {translateStatus(reimbursement.status)}
-                        </Badge>
-                      </TableCell>
+              {mockReimbursements.length === 0 ? (
+                <EmptyState
+                  title="Tidak Ada Data Reimbursement"
+                  description="Tidak ada data reimbursement yang cocok dengan filter yang dipilih."
+                  icon={<FileSpreadsheet className="h-12 w-12" />} // Example icon
+                />
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Pengguna</TableHead>
+                      <TableHead>Acara</TableHead>
+                      <TableHead>Jumlah</TableHead>
+                      <TableHead>Tanggal</TableHead>
+                      <TableHead>Status</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {mockReimbursements.map((reimbursement) => (
+                      <TableRow key={reimbursement.id}>
+                        <TableCell className="font-medium">{reimbursement.id}</TableCell>
+                        <TableCell>{reimbursement.user}</TableCell>
+                        <TableCell>{reimbursement.event}</TableCell>
+                        <TableCell>{formatRupiah(reimbursement.amount)}</TableCell>
+                        <TableCell>{reimbursement.submittedDate}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              reimbursement.status === "approved"
+                                ? "success"
+                                : reimbursement.status === "rejected"
+                                  ? "destructive"
+                                  : reimbursement.status === "clarification"
+                                    ? "warning"
+                                    : "outline"
+                            }
+                          >
+                            {translateStatus(reimbursement.status)}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
             <CardFooter className="flex justify-between">
               <div className="text-sm text-muted-foreground">Menampilkan 5 dari 42 reimbursement</div>

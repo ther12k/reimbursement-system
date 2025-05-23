@@ -47,7 +47,7 @@ export function AppLayout({ sidebar, children, title }: AppLayoutProps) {
           >
             <button
               onClick={toggleCollapsed}
-              className="absolute -left-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border bg-background shadow-sm"
+              className="absolute -left-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border bg-background shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background"
               aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               <ChevronRight className={`h-4 w-4 transition-transform ${collapsed ? "" : "rotate-180"}`} />
@@ -72,7 +72,7 @@ export function AppLayout({ sidebar, children, title }: AppLayoutProps) {
         {/* Header */}
         <header className="sticky top-0 z-10 flex h-14 items-center border-b bg-background px-4">
           {isMobile && (
-            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="mr-2">
+            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)} className="mr-2" aria-label="Open navigation menu">
               <Menu className="h-5 w-5" />
             </Button>
           )}

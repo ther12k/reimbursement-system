@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { formatRupiah, translateStatus } from "@/lib/utils"
+import { EmptyState } from "@/components/shared/empty-state" // Import EmptyState
+import { FileText, PlusCircle } from "lucide-react" // Import icons for EmptyState
 
 // Mock data for user reimbursements
 const userReimbursements = [
@@ -53,6 +55,24 @@ const userReimbursements = [
 ]
 
 export default function UserReimbursementsTable() {
+  if (userReimbursements.length === 0) {
+    return (
+      <EmptyState
+        title="Tidak Ada Reimbursement"
+        description="Anda belum memiliki permintaan reimbursement."
+        icon={<FileText className="h-12 w-12" />}
+        action={
+          <Button asChild>
+            <Link href="/user/reimbursements/new">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Buat Reimbursement Baru
+            </Link>
+          </Button>
+        }
+      />
+    )
+  }
+
   return (
     <Table>
       <TableHeader>
