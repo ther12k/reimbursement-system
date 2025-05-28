@@ -11,14 +11,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/lib/firebase/auth"
+import { useFirebase } from "@/lib/firebase/hooks/use-firebase"
 import { LoadingSpinner } from "@/components/shared/loading-spinner"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function RegisterPage() {
   const router = useRouter()
   const { toast } = useToast()
-  const { signUp, loading } = useAuth()
+  const { signUp, loading } = useFirebase()
 
   const [formData, setFormData] = useState({
     name: "",
